@@ -1,6 +1,6 @@
 module Main where
 
-import Lib
+import LibRECtrl.Core.Domain.Power
 
 main :: IO ()
 main = someFunc

@@ -1,4 +1,4 @@
-module Lib
+module LibRECtrl.Core.Domain.Power
     ( someFunc
     ) where
 
