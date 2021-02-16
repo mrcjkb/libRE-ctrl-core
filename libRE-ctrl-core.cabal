@@ -3,7 +3,7 @@ version:             0.1.0
 -- synopsis:
 -- description:
 homepage:            https://github.com/mrcjkb/libRE-ctrl-core#readme
-license:             GPLv2
+license:             GPL-2
 license-file:        LICENSE
 author:              Marc Jakobi
 maintainer:          mrcjkb89@outlook.com
@@ -16,6 +16,7 @@ cabal-version:       >=1.12
 library
   hs-source-dirs:      src
   exposed-modules:     LibRECtrl.Core.Domain.Power
+                       LibRECtrl.Core.Domain.Unit
   build-depends:       base >= 4.7 && < 5
   default-language:    Haskell2010
 
