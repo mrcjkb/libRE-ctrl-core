@@ -3,4 +3,4 @@ module Main where
 import LibRECtrl.Core.Domain.Power
 
 main :: IO ()
-main = someFunc
+main = putStrLn "Not implemented yet."
