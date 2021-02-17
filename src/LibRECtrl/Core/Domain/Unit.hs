@@ -6,8 +6,8 @@ class (Eq a) => Unit a where
   si :: a -> a
   -- | The conversion factor, used to convert a value of this Unit to its SI unit via multiplication
   siFactor :: Num b =>  a -> b
-  -- | The conversion summand, used to convert a value of this Unit to its SI unit via addition
-  siSummand :: Num b => a -> b
+  -- | The conversion offset, used to convert a value of this Unit to its SI unit via addition
+  siOffset :: Num b => a -> b
  
 
 -- | A physical value, which has a unit, and can be converted to its SI value.

@@ -22,7 +22,7 @@ instance Unit PowerUnit where
   siFactor KW = 1000
   siFactor MW = 1000 * siFactor KW
   siFactor GW = 1000 * siFactor MW
-  siSummand _ = 0
+  siOffset _ = 0
 
 -- | A PowerValue has a value and a unit.
 data PowerValue a where
@@ -41,7 +41,7 @@ instance PhysicalValue (PowerValue a) where
                           }
     where
       factor = siFactor u
-      summand = siSummand u
+      summand = siOffset u
       siValue = factor * x + summand
 
 instance Eq (PowerValue a) where
