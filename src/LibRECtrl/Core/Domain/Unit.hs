@@ -5,9 +5,9 @@ class (Eq a) => Unit a where
   -- | Get the SI Unit type
   si :: a -> a
   -- | The conversion factor, used to convert a value of this Unit to its SI unit via multiplication
-  siFactor :: Num b =>  a -> b
+  siFactor :: a -> Double
   -- | The conversion offset, used to convert a value of this Unit to its SI unit via addition
-  siOffset :: Num b => a -> b
+  siOffset :: a -> Double
  
 
 -- | A physical value, which has a unit, and can be converted to its SI value.

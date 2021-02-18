@@ -8,13 +8,21 @@ import LibRECtrl.Core.Domain.Unit
 import Numeric
 
 -- | The power units supported by this library.
-data PowerUnit = W | KW | MW | GW deriving Eq
+data PowerUnit = W | KW | MW | GW | UserDefinedPowerUnit {
+                                      -- | The PowerUnit on which this user defined unit is based
+                                      baseUnit :: PowerUnit
+                                      -- | The conversion factor, used to convert this unit into its baseUnit
+                                    , conversionFactor :: Double
+                                      -- | The name of this unit
+                                    , unitName :: String
+                                    } deriving Eq
 
 instance Show PowerUnit where
   show W = "W"
   show KW = "kW"
   show MW = "MW"
   show GW = "GW"
+  show (UserDefinedPowerUnit _ _ name) = name
 
 instance Unit PowerUnit where
   si _ = W
@@ -22,6 +30,7 @@ instance Unit PowerUnit where
   siFactor KW = 1000
   siFactor MW = 1000 * siFactor KW
   siFactor GW = 1000 * siFactor MW
+  siFactor (UserDefinedPowerUnit baseUnit x _) = x * siFactor baseUnit
   siOffset _ = 0
 
 -- | A PowerValue has a value and a unit.
