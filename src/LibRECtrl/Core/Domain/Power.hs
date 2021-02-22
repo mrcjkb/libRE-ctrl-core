@@ -26,7 +26,7 @@ instance Show PowerUnit where
   show (UserDefinedPowerUnit _ _ name) = name
 
 instance Ord PowerUnit where
-   compare unit1 unit2 = compareUnits unit1 unit2 
+   compare unit1 unit2 = compare' unit1 unit2 
 
 instance Unit PowerUnit where
   si _ = W
@@ -37,7 +37,8 @@ instance Unit PowerUnit where
   siFactor (UserDefinedPowerUnit baseUnit x _) = x * siFactor baseUnit
   siOffset _ = 0
 
--- | A PowerValue has a value and a unit.
+-- | A PowerValue is a PhysicalValue that represents power.
+-- | It comes with a Double value and a PowerUnit.
 data PowerValue a b where
   PowerValue :: {
     value :: Double,
@@ -57,21 +58,48 @@ instance PhysicalValue (PowerValue a b) where
       summand = siOffset u
       siValue = factor * x + summand
 
+
+-- | Extract the SI value from a PowerValue
+siValue :: PowerValue a b -> Double
+siValue = value . toSi
+
+-- | Determine the larger unit of two PowerValues
+largerUnit :: PowerValue a b -> PowerValue a b -> PowerUnit
+largerUnit pv1 pv2 = max (unit pv1) (unit pv2)
+
 -- | Convert a PhysicalValue with a given unit to an equivalent PhysicalValue with another unit
 convert :: PowerValue a b -> PowerUnit -> PowerValue a b
 convert powerValue destUnit = PowerValue destValue destUnit
   where
-    siValue = value $ toSi powerValue
-    destValue = siValue / siFactor destUnit
-    
-instance Eq (PowerValue a b) where
-  pv1 == pv2 = siValue1 == siValue2
-    where
-      siValue1 = value $ toSi pv1
-      siValue2 = value $ toSi pv2
+    destValue = siValue powerValue / siFactor destUnit
 
---instance Num (PowerValue a) where
-  --(+)  
+-- | Factory to create a PowerValue in Watts from a Double value
+toWatts :: Double -> PowerValue a b
+toWatts x = PowerValue x W
+
+instance Eq (PowerValue a b) where
+  pv1 == pv2 = siValue pv1 == siValue pv2
+
+instance Num (PowerValue a b) where
+  pv1 + pv2 = convert siSum destUnit
+    where
+      siSum = toWatts $ siValue pv1 + siValue pv2
+      destUnit = largerUnit pv1 pv2
+  pv1 * pv2 = convert siProduct destUnit
+    where
+      siProduct = toWatts $ siValue pv1 * siValue pv2
+      destUnit = largerUnit pv1 pv2
+  abs (PowerValue x u) = PowerValue (abs x) u
+  signum (PowerValue x u) = PowerValue (signum x) u
+  fromInteger x = PowerValue (fromInteger x) W
+  negate (PowerValue x u) = PowerValue (negate x) u
+
+instance Fractional (PowerValue a b) where
+  fromRational x = PowerValue (fromRational x) W
+  pv1 / pv2 = convert siFrac destUnit
+    where
+      siFrac = toWatts $ siValue pv1 / siValue pv2
+      destUnit = largerUnit pv1 pv2
 
 instance Ord (PowerValue a b) where
  compare pv1 pv2 = compare siValue1 siValue2
@@ -79,6 +107,6 @@ instance Ord (PowerValue a b) where
     siValue1 = value $ toSi pv1
     siValue2 = value $ toSi pv2 
 
---instance Real (PowerValue a b) where
-  --toRational powerValue = toRational siValue
-    --where siValue = value $ toSi powerValue
+instance Real (PowerValue a b) where
+  toRational powerValue = toRational siValue
+    where siValue = value $ toSi powerValue
