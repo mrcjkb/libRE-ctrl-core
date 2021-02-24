@@ -1,4 +1,3 @@
-{-#LANGUAGE GADTs#-}
 module LibRECtrl.Core.Domain.Power(
       PowerUnit(..),
       PowerValue(..),
@@ -39,16 +38,15 @@ instance Unit PowerUnit where
 
 -- | A PowerValue is a PhysicalValue that represents power.
 -- | It comes with a Double value and a PowerUnit.
-data PowerValue a b where
-  PowerValue :: {
+data PowerValue = PowerValue {
     value :: Double,
     unit :: PowerUnit
-  } -> PowerValue a b
+  }
 
-instance Show (PowerValue a b) where
+instance Show (PowerValue) where
   show (PowerValue x u) = mconcat [showFloat x "", " ", show u]
 
-instance PhysicalValue (PowerValue a b) where
+instance PhysicalValue (PowerValue) where
   toSi (PowerValue x u) = PowerValue {
                             value = siValue,
                             unit = si u
@@ -60,27 +58,27 @@ instance PhysicalValue (PowerValue a b) where
 
 
 -- | Extract the SI value from a PowerValue
-siValue :: PowerValue a b -> Double
+siValue :: PowerValue -> Double
 siValue = value . toSi
 
 -- | Determine the larger unit of two PowerValues
-largerUnit :: PowerValue a b -> PowerValue a b -> PowerUnit
+largerUnit :: PowerValue -> PowerValue -> PowerUnit
 largerUnit pv1 pv2 = max (unit pv1) (unit pv2)
 
 -- | Convert a PhysicalValue with a given unit to an equivalent PhysicalValue with another unit
-convert :: PowerValue a b -> PowerUnit -> PowerValue a b
+convert :: PowerValue -> PowerUnit -> PowerValue
 convert powerValue destUnit = PowerValue destValue destUnit
   where
     destValue = siValue powerValue / siFactor destUnit
 
 -- | Factory to create a PowerValue in Watts from a Double value
-toWatts :: Double -> PowerValue a b
+toWatts :: Double -> PowerValue
 toWatts x = PowerValue x W
 
-instance Eq (PowerValue a b) where
+instance Eq (PowerValue) where
   pv1 == pv2 = siValue pv1 == siValue pv2
 
-instance Num (PowerValue a b) where
+instance Num (PowerValue) where
   pv1 + pv2 = convert siSum destUnit
     where
       siSum = toWatts $ siValue pv1 + siValue pv2
@@ -94,19 +92,19 @@ instance Num (PowerValue a b) where
   fromInteger x = PowerValue (fromInteger x) W
   negate (PowerValue x u) = PowerValue (negate x) u
 
-instance Fractional (PowerValue a b) where
+instance Fractional (PowerValue) where
   fromRational x = PowerValue (fromRational x) W
   pv1 / pv2 = convert siFrac destUnit
     where
       siFrac = toWatts $ siValue pv1 / siValue pv2
       destUnit = largerUnit pv1 pv2
 
-instance Ord (PowerValue a b) where
+instance Ord (PowerValue) where
  compare pv1 pv2 = compare siValue1 siValue2
   where
     siValue1 = value $ toSi pv1
     siValue2 = value $ toSi pv2 
 
-instance Real (PowerValue a b) where
+instance Real (PowerValue) where
   toRational powerValue = toRational siValue
     where siValue = value $ toSi powerValue
