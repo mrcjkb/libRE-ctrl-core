@@ -6,6 +6,7 @@ import Test.QuickCheck.Arbitrary
 
 import Control.Monad
 
+import LibRECtrl.Core.Domain.Unit
 import LibRECtrl.Core.Domain.Power
 
 main :: IO ()
@@ -13,13 +14,16 @@ main = defaultMain tests
 
 tests = [
         testGroup "PowerUnitTestGroup" [
-                testProperty "prop1" powerUnitProp0
+                testProperty "SI unit should always be W." siUnitAlwaysWProperty
+              , testProperty "SI offset should always be 0." offsetAlwaysZeroProperty
            ]
       ]
 
-powerUnitProp0 b = b == W
-  where types = (b :: PowerUnit)
+siUnitAlwaysWProperty :: PowerUnit -> Bool
+siUnitAlwaysWProperty x = si x == W
 
+offsetAlwaysZeroProperty :: PowerUnit -> Bool
+offsetAlwaysZeroProperty x = siOffset x == 0  
 
 instance Arbitrary PowerUnit where
   arbitrary = createArbitraryPowerUnit
