@@ -31,7 +31,7 @@ executable libRE-ctrl-core-exe
 test-suite libRE-ctrl-core-test
   type:                exitcode-stdio-1.0
   hs-source-dirs:      test
-  main-is:             Spec.hs
+  main-is:             PowerSpec.hs
   build-depends:       base
                      , libRE-ctrl-core
                      , test-framework

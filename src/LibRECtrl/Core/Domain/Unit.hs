@@ -1,7 +1,7 @@
 module LibRECtrl.Core.Domain.Unit where
 
 -- | A physical unit, which has an SI Unit that any type instance can be converted to via the siFactor and siSummand functions
-class (Eq a, Ord a) => Unit a where
+class (Eq a, Ord a, Show a) => Unit a where
   -- | Get the SI Unit type
   si :: a -> a
   -- | The conversion factor, used to convert a value of this Unit to its SI unit via multiplication
@@ -18,6 +18,6 @@ compare' unit1 unit2 = compare (unitScale unit1) (unitScale unit2)
 -- | A PhysicalValue supports addition and subtration with another PhysicalValue,
 -- | and it supports multiplication and division with a scalar. A scalar should be divided by a PhysicalValue.
 -- | Note that these rules are currently not enforced!
-class (Eq a, Real a, Fractional a) => PhysicalValue a where
+class (Eq a, Real a, Fractional a, Show a) => PhysicalValue a where
   -- | Convert a PhysicalValue with a given unit to an equivalent PhysicalValue with its SI unit
   toSi :: a -> a
