@@ -19,6 +19,10 @@ tests = [
               , testProperty "SI factor should alays be greater than or equal to 1 for non-user-defined PowerUnits." factorGreaterThanOrEqualToOneProperty
               , testProperty "Ordering should be based on SI factor." orderBasedOnSiFactorProperty
            ]
+      , testGroup "PowerValueTestGroup" [
+                testProperty "Adding PowerValues of arbitrary units should result in value with greater unit." additionWithArbitraryUnitsProperty
+              , testProperty "Subtracting PowerValues of arbitrary units should result in value with greater unit." subtractionWithArbitraryUnitsProperty
+          ]
       ]
 
 siUnitAlwaysWProperty :: PowerUnit -> Bool
@@ -39,6 +43,28 @@ orderBasedOnSiFactorProperty x
                         | siFactor x > 1 = x > W
                         | siFactor x == 1 = x == W
                         | otherwise = x < W
+
+additionWithArbitraryUnitsProperty :: Double -> Bool
+additionWithArbitraryUnitsProperty = operationOnValuesOfArbitraryUnitsProperty (+)
+
+subtractionWithArbitraryUnitsProperty :: Double -> Bool
+subtractionWithArbitraryUnitsProperty = operationOnValuesOfArbitraryUnitsProperty (-)
+
+operationOnValuesOfArbitraryUnitsProperty :: (PowerValue -> PowerValue -> PowerValue) -> Double -> Bool
+operationOnValuesOfArbitraryUnitsProperty fun x
+    | siFactor u > siFactor GW = unit (pv `fun` oneGW) == u
+    | siFactor u <= siFactor GW = unit (pv `fun` oneGW) == GW
+    | siFactor u <= siFactor MW = unit (pv `fun` oneMW) == MW
+    | siFactor u <= siFactor KW = unit (pv `fun` oneKW) == KW
+    | siFactor u <= siFactor W = unit (pv `fun` oneW) == W
+    | otherwise = unit (pv `fun` oneW) == W
+  where 
+    pv = PowerValue x W
+    u = unit pv
+    oneGW = PowerValue 1 GW
+    oneMW = PowerValue 1 MW
+    oneKW = PowerValue 1 KW
+    oneW = PowerValue 1 W
 
 instance Arbitrary PowerUnit where
   arbitrary = createArbitraryPowerUnit
