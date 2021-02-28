@@ -1,7 +1,6 @@
 module LibRECtrl.Core.Domain.Power(
       PowerUnit(..),
       PowerValue(..),
-      convert -- TODO: Remove export
 ) where
 
 import LibRECtrl.Core.Domain.Unit
