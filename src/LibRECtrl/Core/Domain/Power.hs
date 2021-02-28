@@ -43,10 +43,10 @@ data PowerValue = PowerValue {
     unit :: PowerUnit
   }
 
-instance Show (PowerValue) where
+instance Show PowerValue where
   show (PowerValue x u) = mconcat [showFloat x "", " ", show u]
 
-instance PhysicalValue (PowerValue) where
+instance PhysicalValue PowerValue where
   toSi (PowerValue x u) = PowerValue {
                             value = siValue,
                             unit = si u
@@ -75,10 +75,10 @@ convert powerValue destUnit = PowerValue destValue destUnit
 toWatts :: Double -> PowerValue
 toWatts x = PowerValue x W
 
-instance Eq (PowerValue) where
+instance Eq PowerValue where
   pv1 == pv2 = siValue pv1 == siValue pv2
 
-instance Num (PowerValue) where
+instance Num PowerValue where
   pv1 + pv2 = convert siSum destUnit
     where
       siSum = toWatts $ siValue pv1 + siValue pv2
@@ -92,19 +92,19 @@ instance Num (PowerValue) where
   fromInteger x = PowerValue (fromInteger x) W
   negate (PowerValue x u) = PowerValue (negate x) u
 
-instance Fractional (PowerValue) where
+instance Fractional PowerValue where
   fromRational x = PowerValue (fromRational x) W
   pv1 / pv2 = convert siFrac destUnit
     where
       siFrac = toWatts $ siValue pv1 / siValue pv2
       destUnit = largerUnit pv1 pv2
 
-instance Ord (PowerValue) where
+instance Ord PowerValue where
  compare pv1 pv2 = compare siValue1 siValue2
   where
     siValue1 = value $ toSi pv1
     siValue2 = value $ toSi pv2 
 
-instance Real (PowerValue) where
+instance Real PowerValue where
   toRational powerValue = toRational siValue
     where siValue = value $ toSi powerValue
