@@ -22,6 +22,10 @@ tests = [
       , testGroup "PowerValueTestGroup" [
                 testProperty "Adding PowerValues of arbitrary units should result in value with greater unit." additionWithArbitraryUnitsProperty
               , testProperty "Subtracting PowerValues of arbitrary units should result in value with greater unit." subtractionWithArbitraryUnitsProperty
+              , testProperty "Adding PowerValues of arbitrary units results in the same as adding their SI values." additionResultsInCorrectSiValueProperty
+              , testProperty "Subtracting PowerValues of arbitrary units results in the same as subtracting their SI values." subtractionResultsInCorrectSiValueProperty 
+              , testProperty "Dividing PowerValue of arbitrary unit results in the same as dividing its SI value." divisionResultsInCorrectSiValueProperty
+              , testProperty "Multiplying PowerValue of arbitrary unit results in the same as multiplying its SI value." multiplicationResultsInCorrectSiValueProperty
           ]
       ]
 
@@ -65,6 +69,28 @@ operationOnValuesOfArbitraryUnitsProperty fun x
     oneMW = PowerValue 1 MW
     oneKW = PowerValue 1 KW
     oneW = PowerValue 1 W
+
+additionResultsInCorrectSiValueProperty :: PowerUnit -> Bool
+additionResultsInCorrectSiValueProperty = operationResultsInCorrectSiValueProperty (+)
+
+subtractionResultsInCorrectSiValueProperty :: PowerUnit -> Bool
+subtractionResultsInCorrectSiValueProperty = operationResultsInCorrectSiValueProperty (-)
+
+divisionResultsInCorrectSiValueProperty :: PowerUnit -> Bool
+divisionResultsInCorrectSiValueProperty = operationResultsInCorrectSiValueProperty (/)
+
+multiplicationResultsInCorrectSiValueProperty :: PowerUnit -> Bool
+multiplicationResultsInCorrectSiValueProperty = operationResultsInCorrectSiValueProperty (*)
+
+operationResultsInCorrectSiValueProperty :: (PowerValue -> PowerValue -> PowerValue) -> PowerUnit -> Bool
+operationResultsInCorrectSiValueProperty fun pu = difference < precision
+  where
+    oneGW = PowerValue 1 GW
+    pv = PowerValue 1 pu
+    resultOfOperationOnRawValues = pv `fun` oneGW
+    resultOfOperationOnSiValues = toSi pv `fun` toSi oneGW
+    difference = abs $ resultOfOperationOnSiValues - resultOfOperationOnRawValues
+    precision = 1e-5
 
 instance Arbitrary PowerUnit where
   arbitrary = createArbitraryPowerUnit
