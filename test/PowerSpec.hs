@@ -23,7 +23,7 @@ tests = [
                 testProperty "Adding PowerValues of arbitrary units should result in value with greater unit." additionWithArbitraryUnitsProperty
               , testProperty "Subtracting PowerValues of arbitrary units should result in value with greater unit." subtractionWithArbitraryUnitsProperty
               , testProperty "Adding PowerValues of arbitrary units results in the same as adding their SI values." additionResultsInCorrectSiValueProperty
-              , testProperty "Subtracting PowerValues of arbitrary units results in the same as subtracting their SI values." subtractionResultsInCorrectSiValueProperty 
+              , testProperty "Subtracting PowerValues of arbitrary units results in the same as subtracting their SI values." subtractionResultsInCorrectSiValueProperty
               , testProperty "Dividing PowerValue of arbitrary unit results in the same as dividing its SI value." divisionResultsInCorrectSiValueProperty
               , testProperty "Multiplying PowerValue of arbitrary unit results in the same as multiplying its SI value." multiplicationResultsInCorrectSiValueProperty
           ]
@@ -33,7 +33,7 @@ siUnitAlwaysWProperty :: PowerUnit -> Bool
 siUnitAlwaysWProperty x = si x == W
 
 offsetAlwaysZeroProperty :: PowerUnit -> Bool
-offsetAlwaysZeroProperty x = siOffset x == 0  
+offsetAlwaysZeroProperty x = siOffset x == 0
 
 factorGreaterThanOrEqualToOneProperty :: PowerUnit -> Bool
 factorGreaterThanOrEqualToOneProperty UserDefinedPowerUnit {} = True
@@ -62,7 +62,7 @@ operationOnValuesOfArbitraryUnitsProperty fun x
     | siFactor u <= siFactor KW = unit (pv `fun` oneKW) == KW
     | siFactor u <= siFactor W = unit (pv `fun` oneW) == W
     | otherwise = unit (pv `fun` oneW) == W
-  where 
+  where
     pv = PowerValue x W
     u = unit pv
     oneGW = PowerValue 1 GW
@@ -124,5 +124,5 @@ createArbitraryUserDefinedPowerUnit = do
   return UserDefinedPowerUnit {
             baseUnit = base,
             conversionFactor = f,
-            unitName = [name] 
+            unitName = [name]
           }

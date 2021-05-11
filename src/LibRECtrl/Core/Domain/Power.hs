@@ -24,7 +24,7 @@ instance Show PowerUnit where
   show (UserDefinedPowerUnit _ _ name) = name
 
 instance Ord PowerUnit where
-   compare unit1 unit2 = compare' unit1 unit2 
+   compare unit1 unit2 = compare' unit1 unit2
 
 instance Unit PowerUnit where
   si _ = W
@@ -102,7 +102,7 @@ instance Ord PowerValue where
  compare pv1 pv2 = compare siValue1 siValue2
   where
     siValue1 = value $ toSi pv1
-    siValue2 = value $ toSi pv2 
+    siValue2 = value $ toSi pv2
 
 instance Real PowerValue where
   toRational powerValue = toRational siValue
