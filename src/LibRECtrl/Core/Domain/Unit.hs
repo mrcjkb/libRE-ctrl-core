@@ -12,12 +12,12 @@ class (Eq a, Ord a, Show a) => Unit a where
 -- | Implementation of the Ord compare function for Units
 compare' :: Unit a => a -> a -> Ordering
 compare' unit1 unit2 = compare (unitScale unit1) (unitScale unit2)
-  where unitScale unit = (siFactor unit) + (siOffset unit)
+  where unitScale unit = siFactor unit + siOffset unit
 
--- | A physical value, which has a unit, and can be converted to its SI value.
+-- | A physical value, which can be converted to its SI value.
 -- | A PhysicalValue supports addition and subtration with another PhysicalValue,
 -- | and it supports multiplication and division with a scalar. A scalar should be divided by a PhysicalValue.
--- | Note that these rules are currently not enforced!
+-- | Note that these rules are not enforced!
 class (Eq a, Real a, Fractional a, Show a) => PhysicalValue a where
   -- | Convert a PhysicalValue with a given unit to an equivalent PhysicalValue with its SI unit
   toSi :: a -> a

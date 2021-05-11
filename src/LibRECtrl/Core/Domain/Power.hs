@@ -16,6 +16,13 @@ data PowerUnit = W | KW | MW | GW | UserDefinedPowerUnit {
                                     , unitName :: String
                                     } deriving Eq
 
+-- | A PowerValue is a "Unit.PhysicalValue" that represents power.
+-- | It comes with a Double value and a PowerUnit.
+data PowerValue = PowerValue {
+    value :: Double,
+    unit :: PowerUnit
+  }
+
 instance Show PowerUnit where
   show W = "W"
   show KW = "kW"
@@ -34,13 +41,6 @@ instance Unit PowerUnit where
   siFactor GW = 1000 * siFactor MW
   siFactor (UserDefinedPowerUnit baseUnit x _) = x * siFactor baseUnit
   siOffset _ = 0
-
--- | A PowerValue is a PhysicalValue that represents power.
--- | It comes with a Double value and a PowerUnit.
-data PowerValue = PowerValue {
-    value :: Double,
-    unit :: PowerUnit
-  }
 
 instance Show PowerValue where
   show (PowerValue x u) = mconcat [showFloat x "", " ", show u]
