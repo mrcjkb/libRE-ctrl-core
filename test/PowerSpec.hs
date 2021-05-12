@@ -1,33 +1,32 @@
+import Control.Monad
+import LibRECtrl.Core.Domain.Power
+import LibRECtrl.Core.Domain.Unit
 import Test.Framework (defaultMain, testGroup)
 import Test.Framework.Providers.QuickCheck2 (testProperty)
-
 import Test.QuickCheck
 import Test.QuickCheck.Arbitrary
-
-import Control.Monad
-
-import LibRECtrl.Core.Domain.Unit
-import LibRECtrl.Core.Domain.Power
 
 main :: IO ()
 main = defaultMain tests
 
-tests = [
-        testGroup "PowerUnitTestGroup" [
-                testProperty "SI unit should always be W." siUnitAlwaysWProperty
-              , testProperty "SI offset should always be 0." offsetAlwaysZeroProperty
-              , testProperty "SI factor should alays be greater than or equal to 1 for non-user-defined PowerUnits." factorGreaterThanOrEqualToOneProperty
-              , testProperty "Ordering should be based on SI factor." orderBasedOnSiFactorProperty
-           ]
-      , testGroup "PowerValueTestGroup" [
-                testProperty "Adding PowerValues of arbitrary units should result in value with greater unit." additionWithArbitraryUnitsProperty
-              , testProperty "Subtracting PowerValues of arbitrary units should result in value with greater unit." subtractionWithArbitraryUnitsProperty
-              , testProperty "Adding PowerValues of arbitrary units results in the same as adding their SI values." additionResultsInCorrectSiValueProperty
-              , testProperty "Subtracting PowerValues of arbitrary units results in the same as subtracting their SI values." subtractionResultsInCorrectSiValueProperty
-              , testProperty "Dividing PowerValue of arbitrary unit results in the same as dividing its SI value." divisionResultsInCorrectSiValueProperty
-              , testProperty "Multiplying PowerValue of arbitrary unit results in the same as multiplying its SI value." multiplicationResultsInCorrectSiValueProperty
-          ]
+tests =
+  [ testGroup
+      "PowerUnitTestGroup"
+      [ testProperty "SI unit should always be W." siUnitAlwaysWProperty,
+        testProperty "SI offset should always be 0." offsetAlwaysZeroProperty,
+        testProperty "SI factor should alays be greater than or equal to 1 for non-user-defined PowerUnits." factorGreaterThanOrEqualToOneProperty,
+        testProperty "Ordering should be based on SI factor." orderBasedOnSiFactorProperty
+      ],
+    testGroup
+      "PowerValueTestGroup"
+      [ testProperty "Adding PowerValues of arbitrary units should result in value with greater unit." additionWithArbitraryUnitsProperty,
+        testProperty "Subtracting PowerValues of arbitrary units should result in value with greater unit." subtractionWithArbitraryUnitsProperty,
+        testProperty "Adding PowerValues of arbitrary units results in the same as adding their SI values." additionResultsInCorrectSiValueProperty,
+        testProperty "Subtracting PowerValues of arbitrary units results in the same as subtracting their SI values." subtractionResultsInCorrectSiValueProperty,
+        testProperty "Dividing PowerValue of arbitrary unit results in the same as dividing its SI value." divisionResultsInCorrectSiValueProperty,
+        testProperty "Multiplying PowerValue of arbitrary unit results in the same as multiplying its SI value." multiplicationResultsInCorrectSiValueProperty
       ]
+  ]
 
 siUnitAlwaysWProperty :: PowerUnit -> Bool
 siUnitAlwaysWProperty x = si x == W
@@ -41,12 +40,12 @@ factorGreaterThanOrEqualToOneProperty x = siFactor x >= 1
 
 orderBasedOnSiFactorProperty :: PowerUnit -> Bool
 orderBasedOnSiFactorProperty x
-                        | siFactor x > siFactor GW = x > GW
-                        | siFactor x > siFactor MW = x > MW
-                        | siFactor x > siFactor KW = x > KW
-                        | siFactor x > 1 = x > W
-                        | siFactor x == 1 = x == W
-                        | otherwise = x < W
+  | siFactor x > siFactor GW = x > GW
+  | siFactor x > siFactor MW = x > MW
+  | siFactor x > siFactor KW = x > KW
+  | siFactor x > 1 = x > W
+  | siFactor x == 1 = x == W
+  | otherwise = x < W
 
 additionWithArbitraryUnitsProperty :: Double -> Bool
 additionWithArbitraryUnitsProperty = operationOnValuesOfArbitraryUnitsProperty (+)
@@ -56,12 +55,12 @@ subtractionWithArbitraryUnitsProperty = operationOnValuesOfArbitraryUnitsPropert
 
 operationOnValuesOfArbitraryUnitsProperty :: (PowerValue -> PowerValue -> PowerValue) -> Double -> Bool
 operationOnValuesOfArbitraryUnitsProperty fun x
-    | siFactor u > siFactor GW = unit (pv `fun` oneGW) == u
-    | siFactor u <= siFactor GW = unit (pv `fun` oneGW) == GW
-    | siFactor u <= siFactor MW = unit (pv `fun` oneMW) == MW
-    | siFactor u <= siFactor KW = unit (pv `fun` oneKW) == KW
-    | siFactor u <= siFactor W = unit (pv `fun` oneW) == W
-    | otherwise = unit (pv `fun` oneW) == W
+  | siFactor u > siFactor GW = unit (pv `fun` oneGW) == u
+  | siFactor u <= siFactor GW = unit (pv `fun` oneGW) == GW
+  | siFactor u <= siFactor MW = unit (pv `fun` oneMW) == MW
+  | siFactor u <= siFactor KW = unit (pv `fun` oneKW) == KW
+  | siFactor u <= siFactor W = unit (pv `fun` oneW) == W
+  | otherwise = unit (pv `fun` oneW) == W
   where
     pv = PowerValue x W
     u = unit pv
@@ -111,8 +110,9 @@ createArbitraryPowerUnit :: Gen PowerUnit
 createArbitraryPowerUnit = do
   powerUnitBoundedEnum <- arbitraryBoundedEnum :: Gen PowerUnitBoundedEnum
   arbitraryUserDefinedPowerUnit <- createArbitraryUserDefinedPowerUnit
-  let powerUnit | powerUnitBoundedEnum == UserDefined' = arbitraryUserDefinedPowerUnit
-                | otherwise = createPowerUnit powerUnitBoundedEnum
+  let powerUnit
+        | powerUnitBoundedEnum == UserDefined' = arbitraryUserDefinedPowerUnit
+        | otherwise = createPowerUnit powerUnitBoundedEnum
   return powerUnit
 
 -- | Helper action for creating an arbitrary user defined power unit
@@ -121,8 +121,9 @@ createArbitraryUserDefinedPowerUnit = do
   base <- createArbitraryPowerUnit
   f <- arbitrarySizedFractional
   name <- arbitraryUnicodeChar
-  return UserDefinedPowerUnit {
-            baseUnit = base,
-            conversionFactor = f,
-            unitName = [name]
-          }
+  return
+    UserDefinedPowerUnit
+      { baseUnit = base,
+        conversionFactor = f,
+        unitName = [name]
+      }
