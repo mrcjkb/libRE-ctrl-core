@@ -17,7 +17,9 @@ library
   hs-source-dirs:      src
   exposed-modules:     LibRECtrl.Core.Domain.Power
                        LibRECtrl.Core.Domain.Unit
+                       LibRECtrl.Core.Domain.Event
   build-depends:       base >= 4.7 && < 5
+                     , time >= 1.11
   default-language:    Haskell2010
 
 executable libRE-ctrl-core-exe
