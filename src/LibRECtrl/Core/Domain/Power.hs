@@ -1,6 +1,9 @@
 module LibRECtrl.Core.Domain.Power
   ( PowerUnit (..),
     PowerValue (..),
+    ElectricSourcePower,
+    ElectricSinkPower,
+    SourceSinkDifferencePower,
   )
 where
 
@@ -23,12 +26,43 @@ data PowerUnit
       }
   deriving (Eq)
 
--- | A PowerValue is a "Unit.PhysicalValue that represents power.
--- | It comes with a Double value and a PowrUnit.
+-- | A PowerValue is a @'LibRECtrl.Core.Domain.Unit.PhysicalValue'@ that represents power.
+-- It comes with a Double value and a PowrUnit.
 data PowerValue = PowerValue
-  { value :: Double,
+  { -- | The numeric value.
+    value :: Double,
+    -- | The power unit.
     unit :: PowerUnit
   }
+
+-- | A container for an electric @'PowerValue'@ that comes from a power source (power production).
+data ElectricSourcePower
+  = -- | Comes from a photovoltaic source.
+    PVProduction PowerValue
+  | -- | Comes from an undefined source.
+    UndefinedElectricSourcePower PowerValue
+  deriving (Eq, Show, Ord)
+
+-- | A container for an electric @'PowerValue'@ that is consumed (as a power sink).
+data ElectricSinkPower
+  = --  | Represents a sum of various electrical loads.
+    TotalElectricalLoad PowerValue
+  | --  | Represents the electric power consumption of a heat pump.
+    HeatPumpLoad PowerValue
+  | --  | Represents a remainder of electrical load.
+    --    For example, a @'TotalElectricalLoad'@ could consist of a @'HeatPumpLoad'@ and a @'RemainingElectricalLoad'@.
+    RemainingElectricalLoad PowerValue
+  | -- | Represents an electrical load from an undefined consumer.
+    UndefinedElectricSinkPower PowerValue
+  deriving (Eq, Show, Ord)
+
+-- | Container for a power source/sink difference.
+data SourceSinkDifferencePower
+  = -- | An absolute @'PowrValue'@ (>= 0) that remains from an @'ElectricSourcePower'@ after consumption.
+    PowerSurplus PowerValue
+  | -- | An absolute @'PowerValue'@ (>= 0) that remains if a power demand (@'ElectricSinkPower'@) cannot be met by an @'ElectricSourcePower'@.
+    PowerDeficit PowerValue
+  deriving (Eq, Show, Ord)
 
 instance Show PowerUnit where
   show W = "W"
