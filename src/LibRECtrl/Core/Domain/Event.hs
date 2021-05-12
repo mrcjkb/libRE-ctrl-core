@@ -6,8 +6,6 @@ where
 
 import Data.Time.Clock
 
-data Event a
-
 -- | A value that a time stamp
 class TimeStamped a where
   -- | Returns the difference in time between two TimeStamped instances
