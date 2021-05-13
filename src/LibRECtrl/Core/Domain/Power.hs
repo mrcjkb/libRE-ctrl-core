@@ -1,7 +1,6 @@
 module LibRECtrl.Core.Domain.Power
   ( PowerUnit (..),
     Power (..),
-    PowerType,
   )
 where
 
