@@ -1,9 +1,11 @@
 module LibRECtrl.Core.Domain.Power
   ( PowerUnit (..),
-    PowerValue (..),
+    Power (..),
+    PowerType,
   )
 where
 
+import LibRECtrl.Core.Domain.ProdCon
 import LibRECtrl.Core.Domain.Unit
 import Numeric
 
@@ -23,15 +25,42 @@ data PowerUnit
       }
   deriving (Eq)
 
--- | A PowerValue is a @'LibRECtrl.Core.Domain.Unit.PhysicalValue'@ that represents power.
+-- | A Power is a @'LibRECtrl.Core.Domain.Unit.PhysicalValue'@ that represents power.
 -- It comes with a Double value and a PowrUnit.
-data PowerValue = PowerValue
+data Power = Power
   { -- | The numeric value.
     value :: Double,
     -- | The power unit.
     unit :: PowerUnit
   }
 
+data ElectricPower
+  = PV (ProdCon Power)
+  | ConsumerLoad (ProdCon Power)
+  | PowerBalance (ProdCon Power)
+
+pvPower :: Power -> ElectricPower
+pvPower p = PV $ Producer p
+
+consumerLoad :: Power -> ElectricPower
+consumerLoad p = ConsumerLoad $ Consumer p
+
+powerBalance :: ProdCon Power -> ProdCon Power -> ProdCon Power
+powerBalance (Producer p) (Consumer c) = powerBalance' (Producer p) (Consumer c)
+powerBalance (Consumer c) (Producer p) = powerBalance' (Producer p) (Consumer c)
+powerBalance (Producer p1) (Producer p2) = Producer $ p1 + p2
+powerBalance (Consumer c1) (Consumer c2) = Consumer $ c1 + c2
+
+powerBalance' :: ProdCon Power -> ProdCon Power -> ProdCon Power
+powerBalance' (Producer producer) (Consumer consumer) =
+  if surplus >= 0
+    then Producer $ positiveDiff producer consumer
+    else Consumer $ positiveDiff consumer producer
+  where
+    surplus :: Power
+    surplus = producer - consumer
+    positiveDiff :: Power -> Power -> Power
+    positiveDiff production consumption = max 0 $ production - consumption
 
 instance Show PowerUnit where
   show W = "W"
@@ -52,12 +81,12 @@ instance Unit PowerUnit where
   siFactor (UserDefinedPowerUnit baseUnit x _) = x * siFactor baseUnit
   siOffset _ = 0
 
-instance Show PowerValue where
-  show (PowerValue x u) = mconcat [showFloat x "", " ", show u]
+instance Show Power where
+  show (Power x u) = mconcat [showFloat x "", " ", show u]
 
-instance PhysicalValue PowerValue where
-  toSi (PowerValue x u) =
-    PowerValue
+instance PhysicalValue Power where
+  toSi (Power x u) =
+    Power
       { value = siValue,
         unit = si u
       }
@@ -66,28 +95,28 @@ instance PhysicalValue PowerValue where
       summand = siOffset u
       siValue = factor * x + summand
 
--- | Extract the SI value from a PowerValue
-siValue :: PowerValue -> Double
+-- | Extract the SI value from a Power
+siValue :: Power -> Double
 siValue = value . toSi
 
--- | Determine the larger unit of two PowerValues
-largerUnit :: PowerValue -> PowerValue -> PowerUnit
+-- | Determine the larger unit of two Powers
+largerUnit :: Power -> Power -> PowerUnit
 largerUnit pv1 pv2 = max (unit pv1) (unit pv2)
 
 -- | Convert a PhysicalValue with a given unit to an equivalent PhysicalValue with another unit
-convert :: PowerValue -> PowerUnit -> PowerValue
-convert powerValue destUnit = PowerValue destValue destUnit
+convert :: Power -> PowerUnit -> Power
+convert powerValue destUnit = Power destValue destUnit
   where
     destValue = siValue powerValue / siFactor destUnit
 
--- | Factory to create a PowerValue in Watts from a Double value
-toWatts :: Double -> PowerValue
-toWatts x = PowerValue x W
+-- | Factory to create a Power in Watts from a Double value
+toWatts :: Double -> Power
+toWatts x = Power x W
 
-instance Eq PowerValue where
+instance Eq Power where
   pv1 == pv2 = siValue pv1 == siValue pv2
 
-instance Num PowerValue where
+instance Num Power where
   pv1 + pv2 = convert siSum destUnit
     where
       siSum = toWatts $ siValue pv1 + siValue pv2
@@ -96,25 +125,25 @@ instance Num PowerValue where
     where
       siProduct = toWatts $ siValue pv1 * siValue pv2
       destUnit = largerUnit pv1 pv2
-  abs (PowerValue x u) = PowerValue (abs x) u
-  signum (PowerValue x u) = PowerValue (signum x) u
-  fromInteger x = PowerValue (fromInteger x) W
-  negate (PowerValue x u) = PowerValue (negate x) u
+  abs (Power x u) = Power (abs x) u
+  signum (Power x u) = Power (signum x) u
+  fromInteger x = Power (fromInteger x) W
+  negate (Power x u) = Power (negate x) u
 
-instance Fractional PowerValue where
-  fromRational x = PowerValue (fromRational x) W
+instance Fractional Power where
+  fromRational x = Power (fromRational x) W
   pv1 / pv2 = convert siFrac destUnit
     where
       siFrac = toWatts $ siValue pv1 / siValue pv2
       destUnit = largerUnit pv1 pv2
 
-instance Ord PowerValue where
+instance Ord Power where
   compare pv1 pv2 = compare siValue1 siValue2
     where
       siValue1 = value $ toSi pv1
       siValue2 = value $ toSi pv2
 
-instance Real PowerValue where
+instance Real Power where
   toRational powerValue = toRational siValue
     where
       siValue = value $ toSi powerValue

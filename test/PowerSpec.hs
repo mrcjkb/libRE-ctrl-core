@@ -1,6 +1,6 @@
-import Control.Monad
 import LibRECtrl.Core.Domain.Power
 import LibRECtrl.Core.Domain.Unit
+import Control.Monad
 import Test.Framework (defaultMain, testGroup)
 import Test.Framework.Providers.QuickCheck2 (testProperty)
 import Test.QuickCheck
@@ -18,13 +18,13 @@ tests =
         testProperty "Ordering should be based on SI factor." orderBasedOnSiFactorProperty
       ],
     testGroup
-      "PowerValueTestGroup"
-      [ testProperty "Adding PowerValues of arbitrary units should result in value with greater unit." additionWithArbitraryUnitsProperty,
-        testProperty "Subtracting PowerValues of arbitrary units should result in value with greater unit." subtractionWithArbitraryUnitsProperty,
-        testProperty "Adding PowerValues of arbitrary units results in the same as adding their SI values." additionResultsInCorrectSiValueProperty,
-        testProperty "Subtracting PowerValues of arbitrary units results in the same as subtracting their SI values." subtractionResultsInCorrectSiValueProperty,
-        testProperty "Dividing PowerValue of arbitrary unit results in the same as dividing its SI value." divisionResultsInCorrectSiValueProperty,
-        testProperty "Multiplying PowerValue of arbitrary unit results in the same as multiplying its SI value." multiplicationResultsInCorrectSiValueProperty
+      "PowerTestGroup"
+      [ testProperty "Adding Powers of arbitrary units should result in value with greater unit." additionWithArbitraryUnitsProperty,
+        testProperty "Subtracting Powers of arbitrary units should result in value with greater unit." subtractionWithArbitraryUnitsProperty,
+        testProperty "Adding Powers of arbitrary units results in the same as adding their SI values." additionResultsInCorrectSiValueProperty,
+        testProperty "Subtracting Powers of arbitrary units results in the same as subtracting their SI values." subtractionResultsInCorrectSiValueProperty,
+        testProperty "Dividing Power of arbitrary unit results in the same as dividing its SI value." divisionResultsInCorrectSiValueProperty,
+        testProperty "Multiplying Power of arbitrary unit results in the same as multiplying its SI value." multiplicationResultsInCorrectSiValueProperty
       ]
   ]
 
@@ -53,7 +53,7 @@ additionWithArbitraryUnitsProperty = operationOnValuesOfArbitraryUnitsProperty (
 subtractionWithArbitraryUnitsProperty :: Double -> Bool
 subtractionWithArbitraryUnitsProperty = operationOnValuesOfArbitraryUnitsProperty (-)
 
-operationOnValuesOfArbitraryUnitsProperty :: (PowerValue -> PowerValue -> PowerValue) -> Double -> Bool
+operationOnValuesOfArbitraryUnitsProperty :: (Power -> Power -> Power) -> Double -> Bool
 operationOnValuesOfArbitraryUnitsProperty fun x
   | siFactor u > siFactor GW = unit (pv `fun` oneGW) == u
   | siFactor u <= siFactor GW = unit (pv `fun` oneGW) == GW
@@ -62,12 +62,12 @@ operationOnValuesOfArbitraryUnitsProperty fun x
   | siFactor u <= siFactor W = unit (pv `fun` oneW) == W
   | otherwise = unit (pv `fun` oneW) == W
   where
-    pv = PowerValue x W
+    pv = Power x W
     u = unit pv
-    oneGW = PowerValue 1 GW
-    oneMW = PowerValue 1 MW
-    oneKW = PowerValue 1 KW
-    oneW = PowerValue 1 W
+    oneGW = Power 1 GW
+    oneMW = Power 1 MW
+    oneKW = Power 1 KW
+    oneW = Power 1 W
 
 additionResultsInCorrectSiValueProperty :: PowerUnit -> Bool
 additionResultsInCorrectSiValueProperty = operationResultsInCorrectSiValueProperty (+)
@@ -81,11 +81,11 @@ divisionResultsInCorrectSiValueProperty = operationResultsInCorrectSiValueProper
 multiplicationResultsInCorrectSiValueProperty :: PowerUnit -> Bool
 multiplicationResultsInCorrectSiValueProperty = operationResultsInCorrectSiValueProperty (*)
 
-operationResultsInCorrectSiValueProperty :: (PowerValue -> PowerValue -> PowerValue) -> PowerUnit -> Bool
+operationResultsInCorrectSiValueProperty :: (Power -> Power -> Power) -> PowerUnit -> Bool
 operationResultsInCorrectSiValueProperty fun pu = difference < precision
   where
-    oneGW = PowerValue 1 GW
-    pv = PowerValue 1 pu
+    oneGW = Power 1 GW
+    pv = Power 1 pu
     resultOfOperationOnRawValues = pv `fun` oneGW
     resultOfOperationOnSiValues = toSi pv `fun` toSi oneGW
     difference = abs $ resultOfOperationOnSiValues - resultOfOperationOnRawValues

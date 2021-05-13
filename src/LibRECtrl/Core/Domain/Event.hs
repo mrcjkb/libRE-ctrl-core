@@ -19,3 +19,7 @@ instance (TimeStamped a) => TimeStamped (UTCTimeStampedEvent a) where
 
 instance (Ord a) => Ord (UTCTimeStampedEvent a) where
   compare (UTCTimeStampedEvent t1 _) (UTCTimeStampedEvent t2 _) = compare t1 t2
+
+instance Functor UTCTimeStampedEvent where
+  fmap f (UTCTimeStampedEvent t x) = UTCTimeStampedEvent t $ f x
+
