@@ -33,33 +33,25 @@ data Power = Power
     unit :: PowerUnit
   }
 
-data ElectricPower
-  = PV (ProdCon Power)
-  | ConsumerLoad (ProdCon Power)
-  | PowerBalance (ProdCon Power)
+-- | Computes the power surplus between production and consumption.
+-- 'source': A 'Production' instance.
+-- 'sink': A 'Consumption' instance.
+-- returns a 'Balance' instance with a positive 'Power' surplus, or 0 if there is no surplus.
+producerSurplus :: ProdCon Power -> ProdCon Power -> ProdCon Power
+producerSurplus source sink = positiveDiff <$> source <*> sink
 
-pvPower :: Power -> ElectricPower
-pvPower p = PV $ Producer p
+-- | Computes the power deficit between production and consumption.
+-- 'source': A 'Production' instance.
+-- 'sink': A 'Consumption' instance.
+-- returns a 'Balance' instance with a negative 'Power' deficit, or 0 if there is no surplus.
+producerDeficit :: ProdCon Power -> ProdCon Power -> ProdCon Power
+producerDeficit source sink = negativeDiff <$> source <*> sink
 
-consumerLoad :: Power -> ElectricPower
-consumerLoad p = ConsumerLoad $ Consumer p
+positiveDiff :: Power -> Power -> Power
+positiveDiff x y = max 0 $ x - y
 
-powerBalance :: ProdCon Power -> ProdCon Power -> ProdCon Power
-powerBalance (Producer p) (Consumer c) = powerBalance' (Producer p) (Consumer c)
-powerBalance (Consumer c) (Producer p) = powerBalance' (Producer p) (Consumer c)
-powerBalance (Producer p1) (Producer p2) = Producer $ p1 + p2
-powerBalance (Consumer c1) (Consumer c2) = Consumer $ c1 + c2
-
-powerBalance' :: ProdCon Power -> ProdCon Power -> ProdCon Power
-powerBalance' (Producer producer) (Consumer consumer) =
-  if surplus >= 0
-    then Producer $ positiveDiff producer consumer
-    else Consumer $ positiveDiff consumer producer
-  where
-    surplus :: Power
-    surplus = producer - consumer
-    positiveDiff :: Power -> Power -> Power
-    positiveDiff production consumption = max 0 $ production - consumption
+negativeDiff :: Power -> Power -> Power
+negativeDiff x y = min 0 $ x - y
 
 instance Show PowerUnit where
   show W = "W"
