@@ -11,14 +11,14 @@ main = defaultMain tests
 
 tests =
   [ testGroup
-      "PowerUnitTestGroup"
+      "PowerUnit tests"
       [ testProperty "SI unit should always be W." siUnitAlwaysWProperty,
         testProperty "SI offset should always be 0." offsetAlwaysZeroProperty,
         testProperty "SI factor should alays be greater than or equal to 1 for non-user-defined PowerUnits." factorGreaterThanOrEqualToOneProperty,
         testProperty "Ordering should be based on SI factor." orderBasedOnSiFactorProperty
       ],
     testGroup
-      "PowerTestGroup"
+      "Power tests"
       [ testProperty "Adding Powers of arbitrary units should result in value with greater unit." additionWithArbitraryUnitsProperty,
         testProperty "Subtracting Powers of arbitrary units should result in value with greater unit." subtractionWithArbitraryUnitsProperty,
         testProperty "Adding Powers of arbitrary units results in the same as adding their SI values." additionResultsInCorrectSiValueProperty,
