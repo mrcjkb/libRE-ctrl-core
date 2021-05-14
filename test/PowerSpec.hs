@@ -1,3 +1,5 @@
+module PowerSpec(powerSpecTests) where
+
 import LibRECtrl.Core.Domain.Power
 import LibRECtrl.Core.Domain.Unit
 import Control.Monad
@@ -6,10 +8,8 @@ import Test.Framework.Providers.QuickCheck2 (testProperty)
 import Test.QuickCheck
 import Test.QuickCheck.Arbitrary
 
-main :: IO ()
-main = defaultMain tests
 
-tests =
+powerSpecTests =
   [ testGroup
       "PowerUnit tests"
       [ testProperty "SI unit should always be W." siUnitAlwaysWProperty,
