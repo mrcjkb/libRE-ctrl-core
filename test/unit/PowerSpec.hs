@@ -81,6 +81,7 @@ divisionResultsInCorrectSiValueProperty = operationResultsInCorrectSiValueProper
 multiplicationResultsInCorrectSiValueProperty :: PowerUnit -> Bool
 multiplicationResultsInCorrectSiValueProperty = operationResultsInCorrectSiValueProperty (*)
 
+-- TODO: Limit range of values, as double precision can be an issue for very large values
 operationResultsInCorrectSiValueProperty :: (Power -> Power -> Power) -> PowerUnit -> Bool
 operationResultsInCorrectSiValueProperty fun pu = difference < precision
   where
