@@ -13,7 +13,7 @@ import Test.QuickCheck.Arbitrary
 prodConSpecTests =
   [ testGroup
       "ProdCon Functor tests"
-      [testProperty "<$> on ProdCon does not alter type" fmapOnProdConResultsInSameType],
+      [ testProperty "<$> on ProdCon does not alter type" fmapOnProdConResultsInSameType],
     testGroup
       "ProdCon Applicative tests"
       [ testProperty "<*> on ProdCon with Production results in Balance" appOnProdConWithProductionResultsInBalance,
@@ -22,7 +22,7 @@ prodConSpecTests =
       ],
     testGroup
       "ProdCon Monad tests"
-      []
+      [ testProperty "Monad actions result in Balance" monadActionsResultInBalance ]
   ]
 
 type DProdCon = ProdCon Double
@@ -61,6 +61,23 @@ appOnProdConResultsInBalance x y = isBalance result
   where
     result :: DProdCon
     result = (+) <$> x <*> y
+
+monadActionsResultInBalance :: DProdCon -> Bool
+monadActionsResultInBalance = isBalance . calculateBalance
+
+calculateBalance :: DProdCon -> DProdCon
+calculateBalance x = do
+  x' <- x
+  y <- getConsumption 1
+  z <- getProduction 2
+  return $ x' - y - z
+
+getProduction :: Double -> DProdCon
+getProduction = Production
+
+getConsumption :: Double -> DProdCon
+getConsumption = Consumption
+
 
 instance Arbitrary DProdCon where
   arbitrary = do
