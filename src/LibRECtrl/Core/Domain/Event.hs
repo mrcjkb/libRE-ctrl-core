@@ -11,8 +11,8 @@ class TimeStamped a where
   -- | Returns the difference in time between two TimeStamped instances
   diffTime :: a -> a -> NominalDiffTime
 
--- | An event with a UTC time stamp
-data UTCTimeStampedEvent event = UTCTimeStampedEvent UTCTime event deriving (Eq, Show)
+-- | An event with a UTC time stamp and a payload
+data UTCTimeStampedEvent payload = UTCTimeStampedEvent UTCTime payload deriving (Eq, Show)
 
 instance (TimeStamped a) => TimeStamped (UTCTimeStampedEvent a) where
   diffTime (UTCTimeStampedEvent t1 _) (UTCTimeStampedEvent t2 _) = diffUTCTime t1 t2
