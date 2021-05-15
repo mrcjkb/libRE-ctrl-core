@@ -1,5 +1,8 @@
 module LibRECtrl.Core.Domain.ProdCon
   ( ProdCon (..),
+    isProduction,
+    isConsumption,
+    isBalance
   )
 where
 
@@ -20,6 +23,21 @@ data ProdCon a
       Show,
       Read
     )
+
+-- | Convenience function for determining if a 'ProdCon' is a 'Production'.
+isProduction :: ProdCon a -> Bool
+isProduction (Production _) = True
+isProduction _ = False
+
+-- | Convenience function for determining if a 'ProdCon' is a 'Consumption'.
+isConsumption :: ProdCon a -> Bool
+isConsumption (Consumption _) = True
+isConsumption _ = False
+
+-- | Convenience function for determining if a 'ProdCon' is a 'Balance'.
+isBalance :: ProdCon a -> Bool
+isBalance (Balance _) = True
+isBalance _ = False
 
 -- | Similar to a Functor, but used by the 'Applicative' instance to convert 'Production' and 'Consumption' types into 'Balance' tpes.
 class Balancer f where

@@ -13,10 +13,13 @@ import Test.QuickCheck.Arbitrary
 prodConSpecTests =
   [ testGroup
       "ProdCon Functor tests"
-      [ testProperty "fmap on ProdCon does not alter type." fmapOnProdConResultsInSameType ],
+      [testProperty "<$> on ProdCon does not alter type" fmapOnProdConResultsInSameType],
     testGroup
       "ProdCon Applicative tests"
-      [],
+      [ testProperty "<*> on ProdCon with Production results in Balance" appOnProdConWithProductionResultsInBalance,
+        testProperty "<*> on ProdCon with Consumption results in Balance" appOnProdConWithConsumptionResultsInBalance,
+        testProperty "<*> on ProdCon with Balance results in Balance" appOnProdConWithBalanceResultsInBalance
+      ],
     testGroup
       "ProdCon Monad tests"
       []
@@ -30,25 +33,34 @@ fmapOnProdConResultsInSameType (Consumption c) = fmapOnConsumptionResultsInConsu
 fmapOnProdConResultsInSameType b = fmapOnBalanceResultsInBalance b
 
 fmapOnProductionResultsInProduction :: DProdCon -> Bool
-fmapOnProductionResultsInProduction production = case result of
-  Production _ -> True
-  _ -> False
+fmapOnProductionResultsInProduction production = isProduction result
   where
     result = fmap (* 2) production
 
 fmapOnConsumptionResultsInConsumption :: DProdCon -> Bool
-fmapOnConsumptionResultsInConsumption consumption = case result of
-  Consumption _ -> True
-  _ -> False
+fmapOnConsumptionResultsInConsumption consumption = isConsumption result
   where
     result = fmap (* 2) consumption
 
 fmapOnBalanceResultsInBalance :: DProdCon -> Bool
-fmapOnBalanceResultsInBalance balance = case result of
-  Balance _ -> True
-  _ -> False
+fmapOnBalanceResultsInBalance balance = isBalance result
   where
     result = fmap (* 2) balance
+
+appOnProdConWithProductionResultsInBalance :: DProdCon -> Bool
+appOnProdConWithProductionResultsInBalance = appOnProdConResultsInBalance $ Production 0
+
+appOnProdConWithConsumptionResultsInBalance :: DProdCon -> Bool
+appOnProdConWithConsumptionResultsInBalance = appOnProdConResultsInBalance $ Consumption 0
+
+appOnProdConWithBalanceResultsInBalance :: DProdCon -> Bool
+appOnProdConWithBalanceResultsInBalance = appOnProdConResultsInBalance $ Balance 0
+
+appOnProdConResultsInBalance :: DProdCon -> DProdCon -> Bool
+appOnProdConResultsInBalance x y = isBalance result
+  where
+    result :: DProdCon
+    result = (+) <$> x <*> y
 
 instance Arbitrary DProdCon where
   arbitrary = do
