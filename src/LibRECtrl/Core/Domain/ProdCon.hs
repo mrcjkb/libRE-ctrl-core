@@ -6,8 +6,6 @@ module LibRECtrl.Core.Domain.ProdCon
   )
 where
 
--- TODO: Write test to confirm applicative & monad balance behaviour
-
 -- | The ProdCon type represents values of three categories.
 -- A value of type @'ProdCon'@ a is either a @'Production'@ (a source),
 -- a @'Consumption'@ (sink) or a @'Balance'@ between a @'Production'@ and a @'Consumption'@ (e.g., a surplus or a deficit).
