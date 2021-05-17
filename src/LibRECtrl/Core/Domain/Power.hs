@@ -1,6 +1,8 @@
 module LibRECtrl.Core.Domain.Power
   ( PowerUnit (..),
     Power (..),
+    producerSurplus,
+    producerDeficit
   )
 where
 

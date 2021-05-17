@@ -1,13 +1,13 @@
-module PowerSpec(powerSpecTests) where
+module PowerSpec (powerSpecTests) where
 
-import LibRECtrl.Core.Domain.Power
-import LibRECtrl.Core.Domain.Unit
 import Control.Monad
+import LibRECtrl.Core.Domain.Power
+import LibRECtrl.Core.Domain.ProdCon
+import LibRECtrl.Core.Domain.Unit
 import Test.Framework (defaultMain, testGroup)
 import Test.Framework.Providers.QuickCheck2 (testProperty)
 import Test.QuickCheck
 import Test.QuickCheck.Arbitrary
-
 
 powerSpecTests =
   [ testGroup
@@ -25,6 +25,11 @@ powerSpecTests =
         testProperty "Subtracting Powers of arbitrary units results in the same as subtracting their SI values" subtractionResultsInCorrectSiValueProperty,
         testProperty "Dividing Power of arbitrary unit results in the same as dividing its SI value" divisionResultsInCorrectSiValueProperty,
         testProperty "Multiplying Power of arbitrary unit results in the same as multiplying its SI value" multiplicationResultsInCorrectSiValueProperty
+      ],
+    testGroup
+      "Power function tests"
+      [ testProperty "Producer surplus is always positive or zero." producerSurplusIsAlwaysPositiveOrZero,
+        testProperty "Producer deficit is always negative or zero." producerDeficitIsAlwaysNegativeOrZero
       ]
   ]
 
@@ -92,8 +97,34 @@ operationResultsInCorrectSiValueProperty fun pu = difference < precision
     difference = abs $ resultOfOperationOnSiValues - resultOfOperationOnRawValues
     precision = 1e-5
 
+producerSurplusIsAlwaysPositiveOrZero :: ProdConPowerPair -> Bool
+producerSurplusIsAlwaysPositiveOrZero = prodConPowerBalanceMatchesPredicate producerSurplus (>= 0)
+
+producerDeficitIsAlwaysNegativeOrZero :: ProdConPowerPair -> Bool
+producerDeficitIsAlwaysNegativeOrZero = prodConPowerBalanceMatchesPredicate producerDeficit (<= 0)
+
+prodConPowerBalanceMatchesPredicate :: (ProdCon Power -> ProdCon Power -> ProdCon Power) -> (Power -> Bool) -> ProdConPowerPair -> Bool
+prodConPowerBalanceMatchesPredicate balanceFunc predicate (ProdConPowerPair x y) = predicate result
+  where
+    balance = balanceFunc x y
+    result = rawValue balance
+
 instance Arbitrary PowerUnit where
   arbitrary = createArbitraryPowerUnit
+
+data ProdConPowerPair = ProdConPowerPair
+  { prod :: ProdCon Power,
+    con :: ProdCon Power
+  }
+  deriving (Show)
+
+instance Arbitrary ProdConPowerPair where
+  arbitrary = do
+    producerValue <- arbitrarySizedFractional
+    consumerValue <- arbitrarySizedFractional
+    let producer = Production $ Power {value = producerValue, unit = W}
+    let consumer = Consumption $ Power {value = consumerValue, unit = W}
+    return ProdConPowerPair {prod = producer, con = consumer}
 
 -- | Helper Enum for PowerUnit's Arbitrary instance
 data PowerUnitBoundedEnum = W' | KW' | MW' | GW' | UserDefined' deriving (Eq, Enum, Bounded)

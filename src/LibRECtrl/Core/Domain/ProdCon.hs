@@ -2,7 +2,8 @@ module LibRECtrl.Core.Domain.ProdCon
   ( ProdCon (..),
     isProduction,
     isConsumption,
-    isBalance
+    isBalance,
+    rawValue
   )
 where
 
@@ -36,6 +37,17 @@ isConsumption _ = False
 isBalance :: ProdCon a -> Bool
 isBalance (Balance _) = True
 isBalance _ = False
+
+-- | Extracts the raw value from a 'ProdCon'
+--
+-- ==== __Example__
+--
+-- >>> rawValue (Production 1)
+-- 1
+rawValue :: ProdCon a -> a
+rawValue (Production x) = x
+rawValue (Consumption x) = x
+rawValue (Balance x) = x
 
 -- | Similar to a Functor, but used by the 'Applicative' instance to convert 'Production' and 'Consumption' types into 'Balance' tpes.
 class Balancer f where
