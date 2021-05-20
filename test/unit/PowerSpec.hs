@@ -97,14 +97,14 @@ operationResultsInCorrectSiValueProperty fun pu = difference < precision
     difference = abs $ resultOfOperationOnSiValues - resultOfOperationOnRawValues
     precision = 1e-5
 
-producerSurplusIsAlwaysPositiveOrZero :: ProdConPowerPair -> Bool
+producerSurplusIsAlwaysPositiveOrZero :: PCPowerPair -> Bool
 producerSurplusIsAlwaysPositiveOrZero = prodConPowerBalanceMatchesPredicate producerSurplus (>= 0)
 
-producerDeficitIsAlwaysNegativeOrZero :: ProdConPowerPair -> Bool
+producerDeficitIsAlwaysNegativeOrZero :: PCPowerPair -> Bool
 producerDeficitIsAlwaysNegativeOrZero = prodConPowerBalanceMatchesPredicate producerDeficit (<= 0)
 
-prodConPowerBalanceMatchesPredicate :: (ProdCon Power -> ProdCon Power -> ProdCon Power) -> (Power -> Bool) -> ProdConPowerPair -> Bool
-prodConPowerBalanceMatchesPredicate balanceFunc predicate (ProdConPowerPair x y) = predicate result
+prodConPowerBalanceMatchesPredicate :: (PCPower -> PCPower -> PCPower) -> (Power -> Bool) -> PCPowerPair -> Bool
+prodConPowerBalanceMatchesPredicate balanceFunc predicate (PCPowerPair x y) = predicate result
   where
     balance = balanceFunc x y
     result = rawValue balance
@@ -112,19 +112,19 @@ prodConPowerBalanceMatchesPredicate balanceFunc predicate (ProdConPowerPair x y)
 instance Arbitrary PowerUnit where
   arbitrary = createArbitraryPowerUnit
 
-data ProdConPowerPair = ProdConPowerPair
-  { prod :: ProdCon Power,
-    con :: ProdCon Power
+data PCPowerPair = PCPowerPair
+  { prod :: PCPower,
+    con :: PCPower
   }
   deriving (Show)
 
-instance Arbitrary ProdConPowerPair where
+instance Arbitrary PCPowerPair where
   arbitrary = do
     producerValue <- arbitrarySizedFractional
     consumerValue <- arbitrarySizedFractional
     let producer = Production $ Power {value = producerValue, unit = W}
     let consumer = Consumption $ Power {value = consumerValue, unit = W}
-    return ProdConPowerPair {prod = producer, con = consumer}
+    return PCPowerPair {prod = producer, con = consumer}
 
 -- | Helper Enum for PowerUnit's Arbitrary instance
 data PowerUnitBoundedEnum = W' | KW' | MW' | GW' | UserDefined' deriving (Eq, Enum, Bounded)

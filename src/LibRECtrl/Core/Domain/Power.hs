@@ -1,6 +1,7 @@
 module LibRECtrl.Core.Domain.Power
   ( PowerUnit (..),
     Power (..),
+    PCPower (..),
     producerSurplus,
     producerDeficit
   )
@@ -35,18 +36,21 @@ data Power = Power
     unit :: PowerUnit
   }
 
+-- | Producer/Consumer/Balance power.
+type PCPower = ProdCon Power
+
 -- | Computes the power surplus between production and consumption.
 -- 'source': A 'Production' instance.
 -- 'sink': A 'Consumption' instance.
 -- returns a 'Balance' instance with a positive 'Power' surplus, or 0 if there is no surplus.
-producerSurplus :: ProdCon Power -> ProdCon Power -> ProdCon Power
+producerSurplus :: PCPower -> PCPower -> PCPower
 producerSurplus source sink = positiveDiff <$> source <*> sink
 
 -- | Computes the power deficit between production and consumption.
 -- 'source': A 'Production' instance.
 -- 'sink': A 'Consumption' instance.
 -- returns a 'Balance' instance with a negative 'Power' deficit, or 0 if there is no surplus.
-producerDeficit :: ProdCon Power -> ProdCon Power -> ProdCon Power
+producerDeficit :: PCPower -> PCPower -> PCPower
 producerDeficit source sink = negativeDiff <$> source <*> sink
 
 positiveDiff :: Power -> Power -> Power
