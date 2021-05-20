@@ -1,0 +1,3 @@
+[submodule "proto"]
+	path = proto
+	url = git@github.com:MrcJkb/libRE-ctrl-proto.git

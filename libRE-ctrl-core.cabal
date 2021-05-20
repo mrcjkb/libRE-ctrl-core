@@ -1,29 +1,41 @@
+cabal-version:       3.0
 name:                libRE-ctrl-core
 version:             0.1.0
 -- synopsis:
 -- description:
 homepage:            https://github.com/mrcjkb/libRE-ctrl-core#readme
-license:             GPL-2
+license:             GPL-2.0-only
 license-file:        LICENSE
 author:              Marc Jakobi
 maintainer:          mrcjkb89@outlook.com
 copyright:           2021
 category:            Web
-build-type:          Simple
+build-type:          Custom
 extra-source-files:  README.md
-cabal-version:       >=1.12
+                   , proto/*.proto
+
+custom-setup
+  setup-depends:      base
+                    , Cabal
+                    , proto-lens-setup
+  build-tool-depends: proto-lens-protoc:proto-lens-protoc
 
 library
   hs-source-dirs:      src
   exposed-modules:     LibRECtrl.Core.Domain.Power
-                       LibRECtrl.Core.Domain.Unit
-                       LibRECtrl.Core.Domain.Event
-                       LibRECtrl.Core.Domain.ProdCon
-                       LibRECtrl.Core.Domain.Id
-                       LibRECtrl.Core.Domain.RESystem
+                     , LibRECtrl.Core.Domain.Unit
+                     , LibRECtrl.Core.Domain.Event
+                     , LibRECtrl.Core.Domain.ProdCon
+                     , LibRECtrl.Core.Domain.Id
+                     , LibRECtrl.Core.Domain.RESystem
+  other-modules:       Proto.CoreDomain
+                     , Proto.CoreDomain_Fields
+  autogen-modules:     Proto.CoreDomain
+                     , Proto.CoreDomain_Fields
   build-depends:       base >= 4.7 && < 5
                      , time >= 1.11 && < 2
                      , uuid >= 1.3 && < 2
+                     , proto-lens-runtime
   default-language:    Haskell2010
 
 executable libRE-ctrl-core-exe
